@@ -15,6 +15,17 @@
 // TODO: reference additional headers your program requires here
 
 typedef unsigned char       BYTE;
+typedef unsigned char boolean;
+typedef unsigned char byte;
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef          short  int16_t;
+typedef unsigned int   uint32_t;
+typedef  int   int32_t;
+
+typedef unsigned int size_t   ;
+typedef unsigned short word;
+
 
 #if !defined WIN32
 #include <stdio.h>

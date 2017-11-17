@@ -29,7 +29,7 @@ printf(" %s",p);
 }
 
 */
-int main( int argc, char *argv[], char *envp[] ) {
+int  test_envp( int argc, char *argv[], char *envp[] ) {
     int iNumberLines = 0;    // Default is no line numbers.
 
     // If /n is passed to the .exe, display numbered listing
@@ -59,4 +59,9 @@ CSQLInit();
 OpenDatabase();
 CSQLClose();
 */
+}
+
+void createDevices();
+int main( int argc, char *argv[], char *envp[] ) {
+   createDevices();
 }

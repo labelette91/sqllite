@@ -1,23 +1,14 @@
 #include "stdafx.h"
+#include <vector>
+#include <map>
 #include "RFXNames.h"
 #include "RFXtrx.h"
-#include "../hardware/hardwaretypes.h"
-#include "../hardware/EvohomeBase.h"
-#include "Helper.h"
-#include <boost/algorithm/string.hpp>
-#include "Logger.h"
+#include "hardwaretypes.h"
+//#include "../hardware/EvohomeBase.h"
+//#include "Helper.h"
+//#include <boost/algorithm/string.hpp>
+//#include "Logger.h"
 
-typedef struct _STR_TABLE_SINGLE {
-	unsigned long    id;
-	const char   *str1;
-	const char   *str2;
-} STR_TABLE_SINGLE;
-
-typedef struct _STR_TABLE_ID1_ID2 {
-	unsigned long    id1;
-	unsigned long    id2;
-	const char   *str1;
-} STR_TABLE_ID1_ID2;
 
 const char *findTableIDSingle1 (const STR_TABLE_SINGLE *t, const unsigned long id)
 {
@@ -503,9 +494,7 @@ const char *RFX_Type_Desc(const unsigned char i, const unsigned char snum)
 	return findTableIDSingle2 (Table, i);
 }
 
-const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char sType)
-{
-	static const STR_TABLE_ID1_ID2	Table[] =
+	 const STR_TABLE_ID1_ID2	T_RFX_Type_SubType_Desc[] =
 	{
 		{ pTypeTEMP, sTypeTEMP1, "THR128/138, THC138" },
 		{ pTypeTEMP, sTypeTEMP2, "THC238/268, THN132, THWR288, THRN122, THN122, AW129/131" },
@@ -875,7 +864,9 @@ const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char
 		{ pTypeGeneralSwitch, sSwitchTypeSysfsGpio, "SysfsGpio" },
 		{  0,0,NULL }
 	};
-	return findTableID1ID2(Table, dType, sType);
+const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char sType)
+{
+	return findTableID1ID2(T_RFX_Type_SubType_Desc, dType, sType);
 }
 
 const char *Media_Player_States(const _eMediaStatus Status)
@@ -1841,7 +1832,7 @@ void GetLightStatus(
 		break;
 	case pTypeEvohome:
 		llevel=0;
-		lstatus=CEvohomeBase::GetWebAPIModeName(nValue);
+//		lstatus=CEvohomeBase::GetWebAPIModeName(nValue);
 		break;
 	case pTypeEvohomeRelay:
 		bHaveDimmer=true;
@@ -1938,81 +1929,8 @@ void GetLightStatus(
 		}
 		break;
 	}
-	if (_log.isTraceEnabled()) _log.Log(LOG_TRACE,"RFXN : GetLightStatus Typ:%2d STyp:%2d nVal:%d sVal:%-4s llvl:%2d isDim:%d maxDim:%2d GrpCmd:%d lstat:%s", 
-		dType,dSubType,nValue,sValue.c_str(),llevel,bHaveDimmer,maxDimLevel,bHaveGroupCmd,lstatus.c_str());
 }
 
-/**
- * Returns a map associating a level value to its name.
- */
-void GetSelectorSwitchStatuses(const std::map<std::string, std::string> & options, std::map<std::string, std::string> & statuses) {
-	std::map< std::string, std::string >::const_iterator itt = options.find("LevelNames");
-	if (itt != options.end()) {
-		//_log.Log(LOG_STATUS, "DEBUG : Get selector switch statuses...");
-		std::string sOptions = itt->second;
-		std::vector<std::string> strarray;
-		boost::split(strarray, sOptions, boost::is_any_of("|"), boost::token_compress_off);
-		std::vector<std::string>::iterator itt;
-		int i = 0;
-		std::stringstream ss;
-		for (itt = strarray.begin(); (itt != strarray.end()) && (i <= 100); ++itt) {
-			ss.clear(); ss.str(""); ss << i;
-			std::string level(ss.str());
-			std::string levelName = *itt;
-			//_log.Log(LOG_STATUS, "DEBUG : Get selector status '%s' for level %s", levelName.c_str(), level.c_str());
-			statuses.insert(std::pair<std::string, std::string>(level.c_str(), levelName.c_str()));
-			i += 10;
-		}
-	}
-}
-
-/**
- * Returns the level value associated to a name.
- */
-int GetSelectorSwitchLevel(const std::map<std::string, std::string> & options, const std::string & levelName) {
-	int level = -1; // not found
-	std::map< std::string, std::string >::const_iterator itt = options.find("LevelNames");
-	if (itt != options.end()) {
-		//_log.Log(LOG_STATUS, "DEBUG : Get selector switch level...");
-		std::string sOptions = itt->second;
-		std::vector<std::string> strarray;
-		boost::split(strarray, sOptions, boost::is_any_of("|"), boost::token_compress_off);
-		std::vector<std::string>::iterator itt;
-		int i = 0;
-		for (itt = strarray.begin(); (itt != strarray.end()) && (i <= 100); ++itt) {
-			if (*itt == levelName) {
-				level = i;
-				break;
-			}
-			i += 10;
-		}
-	}
-	return level;
-}
-
-/**
- * Returns the action associated with a level
- */
-std::string GetSelectorSwitchLevelAction(const std::map<std::string, std::string> & options, const int level) {
-	std::string action = ""; // not found
-	std::map< std::string, std::string >::const_iterator itt = options.find("LevelActions");
-	if (itt != options.end()) {
-		//_log.Log(LOG_STATUS, "DEBUG : Get selector switch level action...");
-		std::string sOptions = itt->second;
-		std::vector<std::string> strarray;
-		boost::split(strarray, sOptions, boost::is_any_of("|"), boost::token_compress_off);
-		std::vector<std::string>::iterator itt;
-		int i = 0;
-		for (itt = strarray.begin(); (itt != strarray.end()) && (i <= 100); ++itt) {
-			if (i == level) {
-				action = *itt;
-				break;
-			}
-			i += 10;
-		}
-	}
-	return action;
-}
 
 bool GetLightCommand(
 	const unsigned char dType,
@@ -2406,7 +2324,7 @@ bool GetLightCommand(
 				// Not a managed command
 				return false;
 			}
-			int level = GetSelectorSwitchLevel(options, switchcmd);
+      int level ;//= GetSelectorSwitchLevel(options, switchcmd);
 			if (level > 0) { // not Off but a level name
 							 // switchcmd cannot be a level name
 				return false;
@@ -3273,82 +3191,3 @@ bool IsSerialDevice(const _eHardwareTypes htype)
 	}
 }
 
-void ConvertToGeneralSwitchType(std::string &devid, int &dtype, int &subtype)
-{
-	if (dtype == pTypeLighting1) {
-		dtype = pTypeGeneralSwitch;
-		if (subtype == sTypeIMPULS) subtype = sSwitchTypeTriState;
-		if (subtype == sTypeAB400D) subtype = sSwitchTypeAB400D;
-		if (subtype == sTypeIMPULS) subtype = sSwitchTypeTriState;
-		std::stringstream s_strid;
-		s_strid << std::hex << atoi(devid.c_str());
-		devid = s_strid.str();
-		devid = "000000" + devid;
-	}
-	else if (dtype == pTypeLighting2) {
-		dtype = pTypeGeneralSwitch;
-		if (subtype == sTypeAC) subtype = sSwitchTypeAC;
-		if (subtype == sTypeHEU) { subtype = sSwitchTypeHEU; devid = "7" + devid; }
-		if (subtype == sTypeKambrook) subtype = sSwitchTypeKambrook;
-		devid = "0" + devid;
-	}
-	else if (dtype == pTypeLighting3) {
-		dtype = pTypeGeneralSwitch;
-		if (subtype == sTypeKoppla) subtype = sSwitchTypeKoppla;
-	}
-	else if (dtype == pTypeLighting4) {
-		dtype = pTypeGeneralSwitch;
-		subtype = sSwitchTypeTriState;
-	}
-	else if (dtype == pTypeLighting5) {
-		dtype = pTypeGeneralSwitch;
-		if (subtype == sTypeEMW100) { subtype = sSwitchTypeEMW100; devid = "00" + devid; }
-		if (subtype == sTypeLivolo) { subtype = sSwitchTypeLivolo; devid = "00" + devid; }
-		if (subtype == sTypeLightwaveRF) { subtype = sSwitchTypeLightwaveRF; devid = "00" + devid; }
-		if (subtype == sTypeLivoloAppliance) { subtype = sSwitchTypeLivoloAppliance; devid = "00" + devid; }
-		if (subtype == sTypeEurodomest) subtype = sSwitchTypeEurodomest;
-	}
-	else if (dtype == pTypeLighting6) {
-		dtype = pTypeGeneralSwitch;
-		subtype = sSwitchTypeBlyss;
-	}
-	else if (dtype == pTypeChime) {
-		dtype = pTypeGeneralSwitch;
-		if (subtype == sTypeByronSX) subtype = sSwitchTypeByronSX;
-		if (subtype == sTypeSelectPlus) subtype = sSwitchTypeSelectPlus;
-		if (subtype == sTypeSelectPlus3) subtype = sSwitchTypeSelectPlus3;
-		if (subtype == sTypeByronMP001) subtype = sSwitchTypeByronMP001;
-	}
-	else if (dtype == pTypeSecurity1) {
-		dtype = pTypeGeneralSwitch;
-		if (subtype == sTypeSecX10) subtype = sSwitchTypeX10secu;
-		if (subtype == sTypeSecX10M) subtype = sSwitchTypeX10secu;
-		if (subtype == sTypeSecX10R) subtype = sSwitchTypeX10secu;
-	}
-	else if (dtype == pTypeHomeConfort) {
-		dtype = pTypeGeneralSwitch;
-		subtype = sSwitchTypeHomeConfort;
-	}
-	else if (dtype == pTypeBlinds) {
-		dtype = pTypeGeneralSwitch;
-		if (subtype == sTypeBlindsT5) subtype = sSwitchTypeBofu;
-		else if (subtype == sTypeBlindsT6) subtype = sSwitchTypeBrel;
-		else if (subtype == sTypeBlindsT7) subtype = sSwitchTypeDooya;
-		else if (subtype == sTypeBlindsT8) subtype = sSwitchTypeBofu;
-		else if (subtype == sTypeBlindsT9) subtype = sSwitchTypeBrel;
-		else if (subtype == sTypeBlindsT10) subtype = sSwitchTypeDooya;
-		std::stringstream s_strid;
-		s_strid << std::hex << strtoul(devid.c_str(), NULL, 16);
-		unsigned long deviceid = 0;
-		s_strid >> deviceid;
-		deviceid = (unsigned long)((deviceid & 0xffffff00) >> 8);
-		char szTmp[20];
-		sprintf(szTmp, "%lx", deviceid);
-		//_log.Log(LOG_ERROR, "RFLink: deviceid: %x", deviceid);
-		devid = szTmp;
-	}
-	else if (dtype == pTypeRFY) {
-		dtype = pTypeGeneralSwitch;
-		subtype = sSwitchTypeRTS;
-	}
-}

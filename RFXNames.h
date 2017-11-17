@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <map>
 
 #define sTypeTH_LC_TC 0xA0   //La Cross Temp_Hum combined
 #define sTypeTEMP_SYSTEM 0xA0  //Internal sensor
@@ -278,3 +280,14 @@ bool IsLightSwitchOn(const std::string &lstatus);
 
 bool IsSerialDevice(const _eHardwareTypes htype);
 void ConvertToGeneralSwitchType(std::string &devid, int &dtype, int &subtype);
+typedef struct _STR_TABLE_SINGLE {
+	unsigned long    id;
+	const char   *str1;
+	const char   *str2;
+} STR_TABLE_SINGLE;
+
+typedef struct _STR_TABLE_ID1_ID2 {
+	unsigned long    id1;
+	unsigned long    id2;
+	const char   *str1;
+} STR_TABLE_ID1_ID2;
